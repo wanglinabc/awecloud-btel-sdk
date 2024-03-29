@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -52,18 +53,21 @@ func main() {
 // xorm 1.0.2已经支持Hook钩子函数注入操作上下文
 func NewEngineForHook() (engine *xorm.Engine, err error) {
 	// XORM创建引擎
-	engine, err = xorm.NewEngine("mysql", "root:password@(mysql.istio-samples:3306)/ysgz-ys?charset=utf8mb4")
+	engine, err = xorm.NewEngine("mysql", "test:password@(localhost:1306)/test?charset=utf8mb4")
 	if err != nil {
 		return
 	}
+
+	engine.ShowSQL(true)
 	// 使用我们的钩子函数
 	btrace.WrapEngine(engine, otel.Tracer("xorm sql execute"))
 	return
 }
 
-type User struct {
+type Reviews struct {
 	Id       int    `json:"id"`
-	Username string `json:"username"`
+	Text     string `json:"text"`
+	Reviewer string `json:"reviewer"`
 }
 
 func query(ctx context.Context) (res interface{}, err error) {
@@ -77,8 +81,21 @@ func query(ctx context.Context) (res interface{}, err error) {
 	// _, iSpan := tracer.Start(ctx, "xxxxx")
 	// defer iSpan.End()
 	// 将子上下文传入Session
+	/*session := db.Context(ctx)
+	u := []Reviews{}
+	err = session.Table("reviews").Where("id = 1").Find(&u)
+	return u, err*/
+
+	comment := &Reviews{
+		Id:       3,
+		Text:     "虚竹实是金大侠小说中之第一人。",
+		Reviewer: "评论3",
+	}
+
 	session := db.Context(ctx)
-	u := []User{}
-	err = session.Table("cuserxx").Find(&u)
-	return u, err
+	_, err = session.Insert(comment)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return comment, err
 }

@@ -28,6 +28,8 @@ require (
 )
 
 require (
+	github.com/golang/glog v1.1.2 // indirect
+	github.com/ikaiguang/go-sqlparser v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
@@ -76,4 +78,4 @@ require (
 	xorm.io/builder v0.3.12 // indirect
 )
 
-replace go.opentelemetry.io/otel/sdk v1.23.1 => cloud.wodcloud.com/git/cloud/go-otel-sdk v0.7.2
+replace go.opentelemetry.io/otel/sdk v1.23.1 => cloud.wodcloud.com/git/cloud/go-otel-sdk v0.7.4
