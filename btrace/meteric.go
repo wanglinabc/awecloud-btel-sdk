@@ -94,7 +94,7 @@ func (c *Tracer) initMeter(otlpEndpoint string) (success bool, err error) {
 			return
 		}
 
-		meterProvider := metric.NewMeterProvider(metric.WithReader(metric.NewPeriodicReader(metricExporter, metric.WithInterval(15*time.Second))),
+		meterProvider := metric.NewMeterProvider(metric.WithReader(metric.NewPeriodicReader(metricExporter, metric.WithInterval(60*time.Second))),
 			metric.WithResource(c.Resource))
 
 		otel.SetMeterProvider(meterProvider)
