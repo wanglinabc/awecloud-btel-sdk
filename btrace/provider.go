@@ -22,6 +22,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Tracer struct {
@@ -32,6 +33,9 @@ type Tracer struct {
 	OtelTracesSamplerArg     string `env:"OTEL_TRACES_SAMPLER_ARG"`
 	OtelTracesSampler        string `env:"OTEL_TRACES_SAMPLER"`
 	OtleMetricsExporter      string `env:"OTEL_METRICS_EXPORTER"`
+	CollectorId              string `env:"COLLECTOR_ID"`
+	OtelResourceAttributes   string `env:"OTEL_RESOURCE_ATTRIBUTES"`
+	TickerFrequency          string `env:"TICKER_FREQUENCY"`
 	errorHandler             otel.ErrorHandler
 	Resource                 *resource.Resource
 	stop                     []func()
@@ -126,7 +130,7 @@ func (c *Tracer) initTracer(traceExporter trace.SpanExporter, stop func()) error
 		return nil
 	}
 
-	var traceIDRatioBased float64
+	/*var traceIDRatioBased float64
 
 	if len(c.OtelTracesSamplerArg) == 0 {
 		traceIDRatioBased = 1.0
@@ -137,11 +141,52 @@ func (c *Tracer) initTracer(traceExporter trace.SpanExporter, stop func()) error
 		traceIDRatioBased = 1.0
 	} else {
 		traceIDRatioBased = f
+	}*/
+
+	var tickerFrequency time.Duration
+	if len(c.TickerFrequency) == 0 || c.TickerFrequency == "0" {
+		tickerFrequency = 30 * time.Second
+	}
+
+	t, err := strconv.Atoi(c.TickerFrequency)
+	if err != nil {
+		tickerFrequency = 30 * time.Second
+	} else {
+		tickerFrequency = time.Duration(t) * time.Second
+	}
+
+	// deployment=python-auto,namespace=bookinfo,cluster=ae2417a1-a58d-4a3d-a63a-fffd6f01d889
+
+	var deployment, namespace, cluster string
+	attributes := strings.Split(c.OtelResourceAttributes, ",")
+	for _, attribute := range attributes {
+		attrs := strings.Split(attribute, "=")
+		if len(attrs) != 2 {
+			continue
+		}
+
+		if strings.Contains(attrs[0], "deployment") {
+			deployment = attrs[1]
+		}
+
+		if attrs[0] == "namespace" {
+			namespace = attrs[1]
+		}
+
+		if attrs[0] == "cluster" {
+			cluster = attrs[1]
+		}
+
 	}
 
 	// 建议使用AlwaysSample全量上传Trace数据，若您的数据太多，可以使用sdktrace.ProbabilitySampler进行采样上传
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(traceIDRatioBased))),
+		sdktrace.WithCollectorId(c.CollectorId),
+		sdktrace.WithCluster(cluster),
+		sdktrace.WithNamespace(namespace),
+		sdktrace.WithDeployment(deployment),
+		sdktrace.WithExporterEndpoint(c.BtelExporterEndpoint),
+		sdktrace.WithTickerFrequency(tickerFrequency),
 		sdktrace.WithBatcher(
 			traceExporter,
 			sdktrace.WithMaxExportBatchSize(10000),

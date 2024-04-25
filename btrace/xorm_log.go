@@ -11,7 +11,7 @@ import (
 
 /*
 	下面都是实现自定义ContextLogger的部分，这里使用OpenTracing自带的Zap日志（语法糖裁剪版）
-	也可以使用Zap、logrus、原生自带的log实现xorm的ContextLogger接口
+	也可以使用Zaplogrus原生自带的log实现xorm的ContextLogger接口
 */
 
 type CustomCtxLogger struct {
