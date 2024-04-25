@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/mux v1.8.0
+	github.com/ikaiguang/go-sqlparser v1.0.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/sethvargo/go-envconfig v0.8.2
 	github.com/shirou/gopsutil v3.21.11+incompatible
@@ -29,7 +30,6 @@ require (
 
 require (
 	github.com/golang/glog v1.1.2 // indirect
-	github.com/ikaiguang/go-sqlparser v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
