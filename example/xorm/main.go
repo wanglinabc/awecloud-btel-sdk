@@ -52,7 +52,7 @@ func main() {
 // xorm 1.0.2已经支持Hook钩子函数注入操作上下文
 func NewEngineForHook() (engine *xorm.Engine, err error) {
 	// XORM创建引擎
-	engine, err = xorm.NewEngine("mysql", "root:password@(mysql.istio-samples:3306)/ysgz-ys?charset=utf8mb4")
+	engine, err = xorm.NewEngine("mysql", "test:password@(localhost:1306)/test?charset=utf8mb4")
 	if err != nil {
 		return
 	}
@@ -61,9 +61,9 @@ func NewEngineForHook() (engine *xorm.Engine, err error) {
 	return
 }
 
-type User struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
+type Review struct {
+	Id   int    `json:"id"`
+	Text string `json:"text"`
 }
 
 func query(ctx context.Context) (res interface{}, err error) {
@@ -78,7 +78,7 @@ func query(ctx context.Context) (res interface{}, err error) {
 	// defer iSpan.End()
 	// 将子上下文传入Session
 	session := db.Context(ctx)
-	u := []User{}
-	err = session.Table("cuserxx").Find(&u)
+	u := []Review{}
+	err = session.Table("reviews").Find(&u)
 	return u, err
 }
