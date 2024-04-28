@@ -27,7 +27,7 @@ import (
 
 const (
 	// resourceAttrKey is the environment variable name OpenTelemetry Resource information will be read from.
-	resourceAttrKey = "BTEL_RESOURCE_ATTRIBUTES"
+	resourceAttrKey = "OTEL_RESOURCE_ATTRIBUTES"
 
 	// svcNameKey is the environment variable name that Service Name information will be read from.
 	svcNameKey = "BTEL_SERVICE_NAME"
