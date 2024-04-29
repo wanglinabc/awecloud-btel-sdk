@@ -165,7 +165,7 @@ func (c *Tracer) initTracer(traceExporter trace.SpanExporter, stop func()) error
 			continue
 		}
 
-		if strings.Contains(attrs[0], "deployment") {
+		if attrs[0] == "deployment" {
 			deployment = attrs[1]
 		}
 
