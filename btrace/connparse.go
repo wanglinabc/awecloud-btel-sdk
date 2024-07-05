@@ -1,12 +1,11 @@
 package btrace
 
 import (
-	"fmt"
 	"strings"
 )
 
 func connParse(driver, conn string) (connection, user, dbName string) {
-	fmt.Println(driver, conn)
+	// fmt.Println(driver, conn)
 	switch driver {
 	case "postgres": //postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full port=5433 user=postgres password=123456 dbname=ficow sslmode=disable
 		if strings.Contains(conn, "@") {
@@ -41,7 +40,26 @@ func connParse(driver, conn string) (connection, user, dbName string) {
 			}
 			connection = host + ":" + port
 		}
-	case "sqlite3":
+	case "sqlite", "sqlite3": // test.db?_auth&_auth_user=admin&_auth_pass=admin&_auth_crypt=sha1
+		splits := strings.Split(conn, "?")
+		if len(splits) > 0 {
+			connection = splits[0]
+			if splits1 := strings.Split(splits[0], "/"); len(splits1) > 0 {
+				dbName = splits1[len(splits1)-1]
+			}
+		}
+
+		if len(splits) > 1 {
+			str := splits[1]
+			for _, s := range strings.Split(str, "&") {
+				if strings.Contains(s, "_auth_user") {
+					if splits2 := strings.Split(s, "="); len(splits2) > 1 {
+						user = splits2[1]
+					}
+				}
+			}
+		}
+
 	case "mysql", "mssql": // root:password@tcp(mysql.istio-samples.svc.cluster.local:3306)/test root:password@(mysql.istio-samples:3306)/ysgz-ys?charset=utf8mb4
 		arr := strings.Split(conn, "@")
 		user = strings.Split(arr[0], ":")[0]
