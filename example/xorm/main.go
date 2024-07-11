@@ -23,9 +23,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/open-beagle/awecloud-btel-sdk/btrace"
+	"github.com/xormplus/xorm"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
-	"xorm.io/xorm"
 )
 
 func main() {
@@ -60,7 +60,7 @@ func NewEngineForHook() (engine *xorm.Engine, err error) {
 
 	engine.ShowSQL(true)
 	// 使用我们的钩子函数
-	btrace.WrapEngine(engine, otel.Tracer("xorm sql execute"))
+	btrace.XormplusWrapEngine(engine, otel.Tracer("xorm sql execute"))
 	return
 }
 
