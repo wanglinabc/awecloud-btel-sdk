@@ -4,28 +4,29 @@ import (
 	"context"
 	"os"
 
+	"github.com/open-beagle/awecloud-btel-sdk/tool"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
-func NewResource(attrs ...attribute.KeyValue) (*resource.Resource, error) {
+func NewResourceWithAttributes(attrs ...attribute.KeyValue) (*resource.Resource, error) {
 	resources, err := resource.New(context.Background(),
-		// WithFromEnv(), // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
-		WithOtherProcess(),
-		resource.WithProcess(), // This option configures a set of Detectors that discover process information
 		resource.WithAttributes(attrs...),
 	)
 	return resources, err
 }
 
-func GetDefaultResource(serviceName string) *resource.Resource {
+func NewDefaultResource() (*resource.Resource, error) {
 	hostname, _ := os.Hostname()
-	return resource.NewWithAttributes(
-		semconv.SchemaURL,
-		semconv.ServiceNameKey.String(serviceName),
-		semconv.HostNameKey.String(hostname),
-		semconv.ProcessPIDKey.Int(os.Getpid()),
-		semconv.ProcessCommandKey.String(os.Args[0]),
+	resources, err := resource.New(context.Background(),
+		WithOtherProcess(),
+		resource.WithProcess(),
+		resource.WithAttributes(
+			semconv.ServiceNameKey.String(tool.GetServiceName()),
+			semconv.HostNameKey.String(hostname),
+			semconv.ProcessPIDKey.Int(os.Getpid()),
+			semconv.ProcessCommandKey.String(os.Args[0])),
 	)
+	return resources, err
 }

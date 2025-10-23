@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/open-beagle/awecloud-btel-sdk/resource"
 	"github.com/open-beagle/awecloud-btel-sdk/tool"
 
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
@@ -54,11 +55,12 @@ func NewLogProvider(opts ...ProviderOption) log.LoggerProvider {
 	if cfg.debug {
 		processor = otel_log.NewSimpleProcessor(cfg.exporter)
 	}
-
+	res, _ := resource.NewDefaultResource()
 	logProvider := otel_log.NewLoggerProvider(
 		otel_log.WithProcessor(
 			processor,
 		),
+		otel_log.WithResource(res),
 	)
 	global.SetLoggerProvider(logProvider)
 	return logProvider

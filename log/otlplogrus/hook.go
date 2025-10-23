@@ -117,8 +117,7 @@ func NewHook(opts ...OTLPHookOption) logrus.Hook {
 	for k, v := range cfg.attributes {
 		attrs = append(attrs, attribute.String(k, v))
 	}
-	res, _ := otlpResource.NewResource(attrs...)
-	res, _ = resource.Merge(res, otlpResource.GetDefaultResource(cfg.serviceName))
+	res, _ := otlpResource.NewResourceWithAttributes(attrs...)
 	// 创建 logger
 	logger := cfg.provider.Logger("betl-logrus", cfg.opts...)
 	return &OTLPHook{
@@ -271,11 +270,3 @@ func (h *OTLPHook) convertValueToAttribute(key string, value interface{}) log.Ke
 }
 
 // addResourceAttributes 添加资源属性
-func (h *OTLPHook) addResourceAttributes(record *log.Record) {
-	for _, attr := range h.resource.Attributes() {
-		record.AddAttributes(log.KeyValue{
-			Key:   string(attr.Key),
-			Value: log.ValueFromAttribute(attr.Value),
-		})
-	}
-}

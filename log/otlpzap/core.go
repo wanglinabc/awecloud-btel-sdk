@@ -107,8 +107,7 @@ func NewCore(opts ...optFunc) zapcore.Core {
 	for k, v := range cfg.attributes {
 		attrs = append(attrs, attribute.String(k, v))
 	}
-	res, _ := otlpResource.NewResource(attrs...)
-	res, _ = resource.Merge(res, otlpResource.GetDefaultResource(cfg.serviceName))
+	res, _ := otlpResource.NewResourceWithAttributes(attrs...)
 	// 创建 logger
 	logger := cfg.provider.Logger("betl-zap", cfg.opts...)
 	return &Core{
