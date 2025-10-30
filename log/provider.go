@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/open-beagle/awecloud-btel-sdk/resource"
 	"github.com/open-beagle/awecloud-btel-sdk/tool"
@@ -20,8 +21,14 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+var (
+	logSync sync.Once
+)
+
 func init() {
-	_ = NewLogProvider()
+	logSync.Do(func() {
+		_ = NewLogProvider()
+	})
 }
 
 type ProviderConfig struct {

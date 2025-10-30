@@ -14,6 +14,10 @@ func GetServiceName() string {
 	return GetEnvString("BTEL_SERVICE_NAME", os.Args[0])
 }
 
+func GetLogExporterEnable() bool {
+	return GetEnvString("OTEL_LOG_EXPORTER", "") == "otlp"
+}
+
 func GetEnvString(key, defaultVal string) string {
 	if val := os.Getenv(key); val != "" {
 		return val

@@ -86,4 +86,4 @@ require (
 	xorm.io/builder v0.3.12 // indirect
 )
 
-replace go.opentelemetry.io/otel/sdk v1.38.0 => cloud.wodcloud.com/git/cloud/go-otel-sdk v0.7.6
+replace go.opentelemetry.io/otel/sdk v1.38.0 => cloud.wodcloud.com/git/cloud/go-otel-sdk v0.7.8

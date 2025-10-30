@@ -11,7 +11,6 @@ import (
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/trace"
 )
 
 func initTrace() {
@@ -34,17 +33,18 @@ func main() {
 
 	logrus.SetReportCaller(true)
 
-	logrus.AddHook(otlplogrus.NewHook(otlplogrus.WithForce()))
+	logrus.AddHook(otlplogrus.NewHook(otlplogrus.WithEnable()))
 	logrus.WithContext(context.Background()).Info("我来修改导出器1")
 
+	// ctx := context.Background()
 	tracer := otel.GetTracerProvider().Tracer("logrus")
 	ctx, span := tracer.Start(context.Background(), "logrus")
 
 	defer span.End()
 
-	spanContext := trace.SpanContextFromContext(ctx)
-	fmt.Println("traceId=", spanContext.TraceID().String())
-	fmt.Println("spanId=", spanContext.SpanID().String())
+	// spanContext := trace.SpanContextFromContext(ctx)
+	// fmt.Println("traceId=", spanContext.TraceID().String())
+	// fmt.Println("spanId=", spanContext.SpanID().String())
 
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.WithContext(ctx).WithField("hello", "world").Info("打印日志")

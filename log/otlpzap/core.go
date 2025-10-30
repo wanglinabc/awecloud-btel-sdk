@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 
+	_ "github.com/open-beagle/awecloud-btel-sdk/log"
 	otlpResource "github.com/open-beagle/awecloud-btel-sdk/resource"
 	"github.com/open-beagle/awecloud-btel-sdk/tool"
 
@@ -21,6 +22,7 @@ type config struct {
 	provider    log.LoggerProvider
 	opts        []log.LoggerOption
 	level       zapcore.Level
+	enable      bool
 }
 
 func WithLoggerOption(options ...log.LoggerOption) optFunc {
@@ -32,6 +34,12 @@ func WithLoggerOption(options ...log.LoggerOption) optFunc {
 func WithLevel(level zapcore.Level) optFunc {
 	return func(cfg *config) {
 		cfg.level = level
+	}
+}
+
+func WithEnable() optFunc {
+	return func(cfg *config) {
+		cfg.enable = true
 	}
 }
 
@@ -54,7 +62,8 @@ func WithLoggerProvider(provider log.LoggerProvider) optFunc {
 
 func newConfig(options []optFunc) *config {
 	var c = &config{
-		level: zapcore.InfoLevel,
+		level:  zapcore.InfoLevel,
+		enable: tool.GetLogExporterEnable(),
 	}
 	for _, opt := range options {
 		opt(c)
@@ -120,7 +129,7 @@ func NewCore(opts ...optFunc) zapcore.Core {
 
 // Enabled decides whether a given logging level is enabled when logging a message.
 func (o *Core) Enabled(level zapcore.Level) bool {
-	return o.cfg.level.Enabled(level)
+	return o.cfg.enable && o.cfg.level.Enabled(level)
 	// param := log.EnabledParameters{Severity: convertLevel(level)}
 	// return o.logger.Enabled(context.Background(), param)
 }
@@ -161,6 +170,9 @@ func (o *Core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.Check
 
 // Write method encodes zap fields to OTel logs and emits them.
 func (o *Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
+	if !o.cfg.enable {
+		return nil
+	}
 	r := log.Record{}
 	r.SetTimestamp(ent.Time)
 	r.SetBody(log.StringValue(ent.Message))

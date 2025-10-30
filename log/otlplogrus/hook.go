@@ -6,6 +6,7 @@ import (
 
 	otlpResource "github.com/open-beagle/awecloud-btel-sdk/resource"
 
+	_ "github.com/open-beagle/awecloud-btel-sdk/log"
 	"github.com/open-beagle/awecloud-btel-sdk/tool"
 
 	"github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ type OTLPHookConfig struct {
 	level       logrus.Level
 	attributes  map[string]string
 	provider    log.LoggerProvider
-	force       bool
+	enable      bool
 	opts        []log.LoggerOption
 }
 
@@ -73,9 +74,9 @@ func WithLoggerProvider(provider log.LoggerProvider) OTLPHookOption {
 		cfg.provider = provider
 	}
 }
-func WithForce() OTLPHookOption {
+func WithEnable() OTLPHookOption {
 	return func(cfg *OTLPHookConfig) {
-		cfg.force = true
+		cfg.enable = true
 	}
 }
 
@@ -96,7 +97,8 @@ func (o *OTLPHookConfig) mergeAttrs() {
 // NewHook 创建新的 OTLP Hook
 func NewHook(opts ...OTLPHookOption) logrus.Hook {
 	cfg := &OTLPHookConfig{
-		level: logrus.InfoLevel,
+		level:  logrus.InfoLevel,
+		enable: tool.GetLogExporterEnable(),
 	}
 	for _, opt := range opts {
 		opt(cfg)
@@ -160,11 +162,12 @@ func (h *OTLPHook) Fire(entry *logrus.Entry) error {
 	if entry.Context != nil {
 		ctx = entry.Context
 	}
-	if !h.extratchEntryField(ctx, entry) && !h.config.force {
+
+	h.extratchEntryField(ctx, entry)
+	if !h.config.enable {
 		return nil
 	}
 	record := h.convertToOTLPRecord(entry)
-	// fmt.Printf("record %+v\n", record)
 	h.logger.Emit(ctx, record)
 	return nil
 }
